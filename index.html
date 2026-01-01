@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DORA Metrics Calculator - Survive & Thrive Edition - rail.sh</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #6933FF 0%, #341a80 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #6933FF 0%, #341a80 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .intro {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #6933FF;
+        }
+
+        .intro h2 {
+            color: #6933FF;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .intro p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .metric-section {
+            margin-bottom: 35px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .metric-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-section h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.2em;
+        }
+
+        .metric-section .description {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            flex: 1;
+            min-width: 200px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .input-group input,
+        .input-group select {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #6933FF;
+        }
+
+        .result-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .elite {
+            background: #10b981;
+            color: white;
+        }
+
+        .high {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .medium {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .low {
+            background: #ef4444;
+            color: white;
+        }
+
+        .overall-score {
+            background: linear-gradient(135deg, #6933FF 0%, #341a80 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .overall-score h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .overall-score .score-display {
+            font-size: 3em;
+            font-weight: 700;
+            margin: 20px 0;
+        }
+
+        .overall-score .score-label {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .legend {
+            margin-top: 40px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .legend h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .legend-badge {
+            flex-shrink: 0;
+        }
+
+        .legend-text {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        footer a {
+            color: #6933FF;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .input-group label,
+            .input-group input,
+            .input-group select {
+                min-width: 100%;
+            }
+
+            .overall-score .score-display {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🪳 DORA Metrics Calculator</h1>
+            <p>Survive and thrive: Measure your team's resilience with DevOps metrics</p>
+            <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.9;">Like a cockroach, great systems are built to survive anything</p>
+        </header>
+
+        <div class="content">
+            <div class="intro">
+                <h2>🪳 What are DORA Metrics?</h2>
+                <p>
+                    DORA (DevOps Research and Assessment) metrics are industry-standard measurements for
+                    software delivery performance. Like a cockroach that survives nuclear disasters, these
+                    metrics help you build systems that are resilient, fast-recovering, and nearly indestructible.
+                    The four key metrics are: Deployment Frequency, Lead Time for Changes,
+                    Mean Time to Recovery, and Change Failure Rate.
+                </p>
+            </div>
+
+            <div class="metric-section">
+                <h3>🚀 1. Deployment Frequency</h3>
+                <p class="description">How often does your organization deploy code to production? Elite cockroaches deploy on-demand!</p>
+                <div class="input-group">
+                    <label for="deploy-freq">Deployment frequency:</label>
+                    <select id="deploy-freq" onchange="calculateScores()">
+                        <option value="">Select...</option>
+                        <option value="4">On-demand (multiple deploys per day)</option>
+                        <option value="3">Between once per day and once per week</option>
+                        <option value="2">Between once per week and once per month</option>
+                        <option value="1">Between once per month and once every 6 months</option>
+                        <option value="0">Fewer than once per 6 months</option>
+                    </select>
+                </div>
+                <div id="deploy-result"></div>
+            </div>
+
+            <div class="metric-section">
+                <h3>⚡ 2. Lead Time for Changes</h3>
+                <p class="description">How long from commit to production? Speed and agility keep you alive in the wild!</p>
+                <div class="input-group">
+                    <label for="lead-time">Lead time:</label>
+                    <select id="lead-time" onchange="calculateScores()">
+                        <option value="">Select...</option>
+                        <option value="4">Less than one hour</option>
+                        <option value="3">Between one day and one week</option>
+                        <option value="2">Between one week and one month</option>
+                        <option value="1">Between one month and six months</option>
+                        <option value="0">More than six months</option>
+                    </select>
+                </div>
+                <div id="leadtime-result"></div>
+            </div>
+
+            <div class="metric-section">
+                <h3>🏥 3. Mean Time to Recovery (MTTR)</h3>
+                <p class="description">How quickly do you bounce back from incidents? Cockroaches are legendary for their recovery abilities!</p>
+                <div class="input-group">
+                    <label for="mttr">Recovery time:</label>
+                    <select id="mttr" onchange="calculateScores()">
+                        <option value="">Select...</option>
+                        <option value="4">Less than one hour</option>
+                        <option value="3">Less than one day</option>
+                        <option value="2">Between one day and one week</option>
+                        <option value="1">Between one week and one month</option>
+                        <option value="0">More than one month</option>
+                    </select>
+                </div>
+                <div id="mttr-result"></div>
+            </div>
+
+            <div class="metric-section">
+                <h3>🛡️ 4. Change Failure Rate</h3>
+                <p class="description">What percentage of deployments fail or require fixes? Lower is better - be resilient like our six-legged friends!</p>
+                <div class="input-group">
+                    <label for="cfr">Failure rate:</label>
+                    <select id="cfr" onchange="calculateScores()">
+                        <option value="">Select...</option>
+                        <option value="4">0-15%</option>
+                        <option value="3">16-30%</option>
+                        <option value="2">31-45%</option>
+                        <option value="1">46-60%</option>
+                        <option value="0">More than 60%</option>
+                    </select>
+                </div>
+                <div id="cfr-result"></div>
+            </div>
+
+            <div id="overall-section" style="display: none;">
+                <div class="overall-score">
+                    <h2>🪳 Your Team's Survival Rating</h2>
+                    <div class="score-display" id="overall-level"></div>
+                    <div class="score-label" id="overall-description"></div>
+                </div>
+            </div>
+
+            <div class="legend">
+                <h3>🪳 Survival Levels</h3>
+                <div class="legend-item">
+                    <span class="result-badge elite legend-badge">Elite</span>
+                    <span class="legend-text">Nuclear-proof - You'll survive anything. Top-tier resilience!</span>
+                </div>
+                <div class="legend-item">
+                    <span class="result-badge high legend-badge">High</span>
+                    <span class="legend-text">Highly resilient - Strong survivor instincts with room to optimize</span>
+                </div>
+                <div class="legend-item">
+                    <span class="result-badge medium legend-badge">Medium</span>
+                    <span class="legend-text">Adaptable - Good survival skills, but vulnerabilities exist</span>
+                </div>
+                <div class="legend-item">
+                    <span class="result-badge low legend-badge">Low</span>
+                    <span class="legend-text">Fragile - Time to evolve! Significant improvement needed</span>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Based on the <a href="https://dora.dev/" target="_blank">DORA State of DevOps</a> research</p>
+            <p style="margin-top: 10px;">🪳 Built to survive | Inspired by <a href="https://www.cockroachlabs.com/" target="_blank">CockroachDB</a></p>
+            <p style="margin-top: 5px;">Made by <a href="https://github.com/rail" target="_blank">@rail</a></p>
+        </footer>
+    </div>
+
+    <script>
+        function getPerformanceLevel(score) {
+            if (score === 4) return { level: 'Elite', class: 'elite' };
+            if (score === 3) return { level: 'High', class: 'high' };
+            if (score === 2) return { level: 'Medium', class: 'medium' };
+            return { level: 'Low', class: 'low' };
+        }
+
+        function calculateScores() {
+            const deployFreq = parseInt(document.getElementById('deploy-freq').value) || null;
+            const leadTime = parseInt(document.getElementById('lead-time').value) || null;
+            const mttr = parseInt(document.getElementById('mttr').value) || null;
+            const cfr = parseInt(document.getElementById('cfr').value) || null;
+
+            // Update individual results
+            if (deployFreq !== null) {
+                const perf = getPerformanceLevel(deployFreq);
+                document.getElementById('deploy-result').innerHTML =
+                    `<span class="result-badge ${perf.class}">${perf.level} Performer</span>`;
+            } else {
+                document.getElementById('deploy-result').innerHTML = '';
+            }
+
+            if (leadTime !== null) {
+                const perf = getPerformanceLevel(leadTime);
+                document.getElementById('leadtime-result').innerHTML =
+                    `<span class="result-badge ${perf.class}">${perf.level} Performer</span>`;
+            } else {
+                document.getElementById('leadtime-result').innerHTML = '';
+            }
+
+            if (mttr !== null) {
+                const perf = getPerformanceLevel(mttr);
+                document.getElementById('mttr-result').innerHTML =
+                    `<span class="result-badge ${perf.class}">${perf.level} Performer</span>`;
+            } else {
+                document.getElementById('mttr-result').innerHTML = '';
+            }
+
+            if (cfr !== null) {
+                const perf = getPerformanceLevel(cfr);
+                document.getElementById('cfr-result').innerHTML =
+                    `<span class="result-badge ${perf.class}">${perf.level} Performer</span>`;
+            } else {
+                document.getElementById('cfr-result').innerHTML = '';
+            }
+
+            // Calculate overall score
+            if (deployFreq !== null && leadTime !== null && mttr !== null && cfr !== null) {
+                const avgScore = (deployFreq + leadTime + mttr + cfr) / 4;
+                const overallPerf = getPerformanceLevel(Math.round(avgScore));
+
+                document.getElementById('overall-section').style.display = 'block';
+                document.getElementById('overall-level').textContent = overallPerf.level;
+
+                const descriptions = {
+                    'Elite': '🪳 Nuclear-proof! Your systems could survive an apocalypse. Top-tier resilience!',
+                    'High': '🪳 Highly resilient! Your team has strong survival instincts.',
+                    'Medium': '🪳 Adaptable! Good foundation but some vulnerabilities to address.',
+                    'Low': '🪳 Time to evolve! Focus on your weakest survival skills first.'
+                };
+
+                document.getElementById('overall-description').textContent = descriptions[overallPerf.level];
+
+                // Scroll to results
+                setTimeout(() => {
+                    document.getElementById('overall-section').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+                }, 100);
+            } else {
+                document.getElementById('overall-section').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
