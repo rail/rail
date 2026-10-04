@@ -1,0 +1,8 @@
+{
+    "name": "rail-sh",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "test": "node --test"
+    }
+}

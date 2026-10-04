@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DORA Metrics Calculator - Professional DevOps Performance Assessment</title>
+    <title>Release Schedule Planner</title>
+    <meta name="description" content="Plan release trains, share the dates, export to your calendar.">
     <style>
-        /* CSS Custom Properties */
         :root {
-            /* Navy Professional Color Palette */
             --color-primary-navy: #0F172A;
             --color-navy-medium: #1E293B;
             --color-navy-light: #334155;
@@ -15,34 +14,28 @@
             --color-sky-blue: #3B82F6;
             --color-teal-success: #14B8A6;
 
-            /* Neutrals */
             --color-white: #FFFFFF;
             --color-surface-light: #F8FAFC;
             --color-border: #E2E8F0;
             --color-text-primary: #0F172A;
             --color-text-secondary: #475569;
 
-            /* Semantic Colors */
-            --color-elite: #10b981;
-            --color-high: #3b82f6;
-            --color-medium: #f59e0b;
-            --color-low: #ef4444;
+            --color-warning: #F59E0B;
+            --color-warning-text: #92400E;
+            --color-warning-surface: #FEF3C7;
+            --color-error: #EF4444;
+            --color-blackout: rgba(245, 158, 11, 0.18);
 
-            /* Spacing System (8px base) */
             --spacing-xs: 0.5rem;
             --spacing-sm: 1rem;
             --spacing-md: 1.5rem;
             --spacing-lg: 2rem;
             --spacing-xl: 3rem;
             --spacing-2xl: 4rem;
-            --spacing-3xl: 6rem;
 
-            /* Shadows */
-            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
             --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.12);
             --shadow-lg: 0 20px 40px rgba(15, 23, 42, 0.16);
 
-            /* Transitions */
             --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
             --transition-duration: 0.3s;
         }
@@ -51,6 +44,10 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        [hidden] {
+            display: none !important;
         }
 
         body {
@@ -69,18 +66,6 @@
             border-radius: 20px;
             box-shadow: var(--shadow-lg);
             overflow: hidden;
-            animation: fadeIn 0.6s var(--transition-smooth);
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         header {
@@ -91,7 +76,7 @@
         }
 
         header h1 {
-            font-size: 3.5rem;
+            font-size: 3rem;
             margin-bottom: var(--spacing-sm);
             font-weight: 700;
             letter-spacing: -0.02em;
@@ -99,7 +84,6 @@
 
         header p {
             font-size: 1.25rem;
-            opacity: 0.95;
             max-width: 800px;
             margin: 0 auto;
             color: var(--color-border);
@@ -109,240 +93,375 @@
             padding: var(--spacing-xl);
         }
 
-        .intro {
-            background: var(--color-surface-light);
-            padding: var(--spacing-lg);
-            border-radius: 12px;
-            margin-bottom: var(--spacing-xl);
-            border-left: 4px solid var(--color-sky-blue);
+        .notice {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            border-radius: 8px;
+            border-left: 4px solid var(--color-warning);
+            background: var(--color-warning-surface);
+            color: var(--color-warning-text);
         }
 
-        .intro h2 {
-            color: var(--color-primary-navy);
-            margin-bottom: var(--spacing-sm);
-            font-size: 2rem;
-            font-weight: 600;
-        }
-
-        .intro p {
-            color: var(--color-text-secondary);
-            line-height: 1.6;
-            font-size: 1rem;
-        }
-
-        .metrics-grid {
+        .config-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: var(--spacing-lg);
             margin-bottom: var(--spacing-xl);
         }
 
-        .metric-section {
+        .card {
+            min-width: 0;
             padding: var(--spacing-lg);
-            background: var(--color-white);
             border: 1px solid var(--color-border);
             border-radius: 12px;
-            transition: transform var(--transition-duration) var(--transition-smooth),
-                        box-shadow var(--transition-duration) var(--transition-smooth),
-                        border-color var(--transition-duration) var(--transition-smooth);
-            animation: slideIn 0.5s var(--transition-smooth) backwards;
+            transition: border-color var(--transition-duration) var(--transition-smooth);
         }
 
-        .metric-section:nth-child(1) { animation-delay: 0.1s; }
-        .metric-section:nth-child(2) { animation-delay: 0.2s; }
-        .metric-section:nth-child(3) { animation-delay: 0.3s; }
-        .metric-section:nth-child(4) { animation-delay: 0.4s; }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .metric-section:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
+        .card:focus-within {
             border-color: var(--color-sky-blue);
         }
 
-        .metric-section.has-value {
-            border-left: 4px solid var(--color-teal-success);
+        .card-wide {
+            grid-column: 1 / -1;
         }
 
-        .metric-section h3 {
-            color: var(--color-primary-navy);
-            margin-bottom: var(--spacing-xs);
+        .card h2 {
             font-size: 1.25rem;
             font-weight: 600;
+            margin-bottom: var(--spacing-sm);
         }
 
-        .metric-section .description {
+        .hint {
             color: var(--color-text-secondary);
-            font-size: 0.95rem;
-            margin-bottom: var(--spacing-md);
-            line-height: 1.5;
+            font-size: 0.85rem;
         }
 
-        .input-group {
+        .card > .hint {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .field {
             display: flex;
-            gap: var(--spacing-md);
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: var(--spacing-md);
+            flex-direction: column;
+            gap: 0.25rem;
+            min-width: 0;
+            margin-bottom: var(--spacing-sm);
         }
 
-        .input-group label {
-            flex: 1;
-            min-width: 180px;
-            color: var(--color-text-primary);
+        .field-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr));
+            gap: var(--spacing-sm);
+        }
+
+        .field-grow {
+            grid-column: span 2;
+        }
+
+        label {
             font-weight: 500;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
-        .input-group select {
-            flex: 2;
-            min-width: 200px;
-            padding: 14px 16px;
+        .row-label {
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+        }
+
+        input,
+        select {
+            width: 100%;
+            min-width: 0;
+            min-height: 44px;
+            padding: 0.5rem 0.75rem;
+            font: inherit;
+            color: var(--color-text-primary);
+            background: var(--color-white);
             border: 2px solid var(--color-border);
             border-radius: 8px;
-            font-size: 1rem;
-            background: var(--color-white);
-            color: var(--color-text-primary);
-            cursor: pointer;
-            transition: all var(--transition-duration) var(--transition-smooth);
-            min-height: 48px;
+            transition: border-color var(--transition-duration) var(--transition-smooth);
         }
 
-        .input-group select:hover {
+        input:hover,
+        select:hover {
             border-color: var(--color-steel-blue);
         }
 
-        .input-group select:focus {
+        input:focus,
+        select:focus {
             outline: none;
             border-color: var(--color-sky-blue);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
 
-        .result-badge {
-            display: inline-flex;
-            align-items: center;
+        [aria-invalid="true"] {
+            border-color: var(--color-error);
+        }
+
+        .field-error {
+            color: var(--color-error);
+            font-size: 0.8rem;
+        }
+
+        .field-error:empty {
+            display: none;
+        }
+
+        .row {
+            display: grid;
             gap: var(--spacing-xs);
-            padding: 10px 18px;
-            border-radius: 24px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            margin-top: var(--spacing-sm);
-            animation: badgeFadeIn 0.4s var(--transition-smooth);
-            min-height: 44px;
+            align-items: end;
+            margin-bottom: var(--spacing-xs);
         }
 
-        @keyframes badgeFadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        .row .field {
+            margin-bottom: 0;
         }
 
-        .elite {
-            background: var(--color-elite);
-            color: white;
+        .milestone-row {
+            grid-template-columns: minmax(0, 1fr) 5rem 6.5rem 2.75rem;
         }
 
-        .high {
-            background: var(--color-high);
-            color: white;
+        .blackout-row {
+            grid-template-columns: minmax(0, 1fr) 11rem 11rem 2.75rem;
         }
 
-        .medium {
-            background: var(--color-medium);
-            color: white;
-        }
-
-        .low {
-            background: var(--color-low);
-            color: white;
-        }
-
-        .overall-score {
-            background: linear-gradient(135deg, var(--color-primary-navy) 0%, var(--color-navy-medium) 50%, var(--color-navy-light) 100%);
-            color: var(--color-white);
-            padding: var(--spacing-2xl);
-            border-radius: 16px;
-            text-align: center;
-            margin-top: var(--spacing-xl);
-            box-shadow: var(--shadow-lg);
-            animation: scoreReveal 0.6s var(--transition-smooth);
-        }
-
-        @keyframes scoreReveal {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .overall-score h2 {
-            font-size: 2rem;
-            margin-bottom: var(--spacing-md);
-            font-weight: 600;
-        }
-
-        .overall-score .score-display {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin: var(--spacing-lg) 0;
-            letter-spacing: -0.02em;
-        }
-
-        .overall-score .score-label {
-            font-size: 1.25rem;
-            opacity: 0.95;
-            line-height: 1.5;
-        }
-
-        .legend {
-            margin-top: var(--spacing-xl);
-            padding: var(--spacing-lg);
-            background: var(--color-surface-light);
-            border-radius: 12px;
-            border: 1px solid var(--color-border);
-        }
-
-        .legend h3 {
-            color: var(--color-primary-navy);
-            margin-bottom: var(--spacing-md);
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .legend-item {
+        .ga-row {
             display: flex;
-            gap: var(--spacing-md);
-            align-items: flex-start;
-            margin-bottom: var(--spacing-md);
-            line-height: 1.5;
+            justify-content: space-between;
+            padding: 0.6rem 0.75rem;
+            margin-bottom: var(--spacing-xs);
+            border-radius: 8px;
+            background: rgba(20, 184, 166, 0.1);
+            font-weight: 600;
         }
 
-        .legend-badge {
-            flex-shrink: 0;
-        }
-
-        .legend-text {
+        .ga-row span:last-child {
             color: var(--color-text-secondary);
+            font-weight: 400;
+        }
+
+        .empty {
+            color: var(--color-text-secondary);
+            font-style: italic;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        button {
+            min-height: 44px;
+            padding: 0.5rem 1rem;
+            font: inherit;
+            font-weight: 600;
+            color: var(--color-white);
+            background: var(--color-primary-navy);
+            border: 2px solid var(--color-primary-navy);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background var(--transition-duration) var(--transition-smooth);
+        }
+
+        button:hover {
+            background: var(--color-navy-light);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .secondary-button {
+            margin-top: var(--spacing-xs);
+            color: var(--color-primary-navy);
+            background: transparent;
+        }
+
+        .secondary-button:hover {
+            background: var(--color-surface-light);
+        }
+
+        .icon-button {
+            min-width: 44px;
+            padding: 0.25rem;
+            font-size: 1.25rem;
+            line-height: 1;
+            color: var(--color-text-secondary);
+            background: transparent;
+            border-color: transparent;
+        }
+
+        .icon-button:hover {
+            color: var(--color-error);
+            background: var(--color-surface-light);
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .toolbar h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            margin-left: auto;
+        }
+
+        .warning-count {
+            padding: 0.2rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--color-warning-text);
+            background: var(--color-warning-surface);
+        }
+
+        .warnings {
+            list-style: none;
+            margin-bottom: var(--spacing-sm);
+            color: var(--color-warning-text);
+        }
+
+        .warnings:empty {
+            display: none;
+        }
+
+        .warnings li::before {
+            content: '⚠ ';
+        }
+
+        .timeline-wrap {
+            overflow-x: auto;
+            margin-bottom: var(--spacing-lg);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+        }
+
+        #timeline {
+            display: block;
+        }
+
+        .tl-lane {
+            stroke: var(--color-border);
+            stroke-width: 2;
+        }
+
+        .tl-grid {
+            stroke: var(--color-border);
+            stroke-dasharray: 2 3;
+        }
+
+        .tl-tick,
+        .tl-today-label {
+            font-size: 11px;
+            fill: var(--color-text-secondary);
+        }
+
+        .tl-label {
+            font-size: 12px;
+            font-weight: 600;
+            fill: var(--color-text-primary);
+        }
+
+        .tl-blackout {
+            fill: var(--color-blackout);
+        }
+
+        .tl-today {
+            stroke: var(--color-error);
+            stroke-width: 1.5;
+        }
+
+        .tl-marker {
+            fill: var(--color-sky-blue);
+            stroke: var(--color-white);
+            stroke-width: 2;
+        }
+
+        .tl-marker.ga {
+            fill: var(--color-teal-success);
+        }
+
+        .tl-marker.shifted {
+            fill: var(--color-white);
+            stroke: var(--color-sky-blue);
+        }
+
+        .tl-marker.ga.shifted {
+            stroke: var(--color-teal-success);
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
             font-size: 0.95rem;
+        }
+
+        th,
+        td {
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+            white-space: nowrap;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        thead th {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: var(--color-text-secondary);
+        }
+
+        th.ga,
+        td.ga {
+            font-weight: 700;
+            color: var(--color-primary-navy);
+            background: rgba(20, 184, 166, 0.08);
+        }
+
+        td.error {
+            color: var(--color-error);
+        }
+
+        .shift {
+            margin-left: 0.25rem;
+            font-weight: 700;
+            color: var(--color-warning);
+            cursor: help;
+        }
+
+        .name-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .release-name {
+            width: 9rem;
+            min-height: 36px;
+            padding: 0.25rem 0.5rem;
+            font-weight: 600;
+        }
+
+        .warning-row td {
+            font-size: 0.85rem;
+            white-space: normal;
+            color: var(--color-warning-text);
         }
 
         footer {
@@ -352,11 +471,14 @@
             font-size: 0.9rem;
         }
 
+        footer p + p {
+            margin-top: 10px;
+        }
+
         footer a {
             color: var(--color-sky-blue);
             text-decoration: none;
             font-weight: 600;
-            transition: color var(--transition-duration) var(--transition-smooth);
         }
 
         footer a:hover {
@@ -364,24 +486,69 @@
             text-decoration: underline;
         }
 
-        /* Responsive Design */
+        dialog {
+            width: 100%;
+            max-width: min(40rem, calc(100vw - 2rem));
+            margin: auto;
+            padding: var(--spacing-lg);
+            border: none;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        dialog::backdrop {
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        dialog h2 {
+            font-size: 1.25rem;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        dialog textarea {
+            width: 100%;
+            margin: var(--spacing-sm) 0;
+            padding: 0.5rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 0.85rem;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        *:focus-visible {
+            outline: 2px solid var(--color-sky-blue);
+            outline-offset: 2px;
+        }
+
         @media (max-width: 1024px) {
-            .metrics-grid {
+            .config-grid {
                 grid-template-columns: 1fr;
             }
         }
 
         @media (max-width: 768px) {
             body {
-                padding: var(--spacing-sm);
+                padding: var(--spacing-xs);
             }
 
             header {
-                padding: var(--spacing-xl) var(--spacing-lg);
+                padding: var(--spacing-xl) var(--spacing-sm);
             }
 
             header h1 {
-                font-size: 2.5rem;
+                font-size: 2rem;
             }
 
             header p {
@@ -389,284 +556,162 @@
             }
 
             .content {
-                padding: var(--spacing-lg);
+                padding: var(--spacing-sm);
             }
 
-            .metrics-grid {
+            .config-grid {
                 grid-template-columns: 1fr;
-                gap: var(--spacing-md);
+                gap: var(--spacing-sm);
             }
 
-            .metric-section {
-                padding: var(--spacing-md);
+            .card {
+                padding: var(--spacing-sm);
             }
 
-            .input-group {
-                flex-direction: column;
-                align-items: stretch;
+            .field-grow {
+                grid-column: auto;
             }
 
-            .input-group label,
-            .input-group select {
-                min-width: 100%;
+            .milestone-row,
+            .blackout-row {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 2.75rem;
+                padding-bottom: var(--spacing-xs);
+                border-bottom: 1px solid var(--color-border);
             }
 
-            .overall-score {
-                padding: var(--spacing-lg);
+            .milestone-row .field:first-child,
+            .blackout-row .field:first-child {
+                grid-column: 1 / -1;
             }
 
-            .overall-score .score-display {
-                font-size: 2.5rem;
+            .toolbar-actions {
+                margin-left: 0;
             }
 
-            .intro, .legend {
-                padding: var(--spacing-md);
-            }
-        }
-
-        @media (max-width: 480px) {
-            header h1 {
-                font-size: 2rem;
-            }
-
-            .overall-score .score-display {
-                font-size: 2rem;
-            }
-        }
-
-        /* Accessibility */
-        *:focus-visible {
-            outline: 2px solid var(--color-sky-blue);
-            outline-offset: 2px;
-        }
-
-        /* Print Styles */
-        @media print {
-            body {
-                background: white;
-            }
-
-            .container {
-                box-shadow: none;
+            footer {
+                padding: var(--spacing-lg) var(--spacing-sm);
             }
         }
     </style>
+    <script type="module" src="app.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>DORA Metrics Calculator</h1>
-            <p>Measure your team's DevOps performance against industry benchmarks</p>
+            <h1>Release Schedule Planner</h1>
+            <p>Plan release trains, share the dates, export to your calendar.</p>
         </header>
 
-        <div class="content">
-            <div class="intro">
-                <h2>Understanding DORA Metrics</h2>
-                <p>
-                    DORA (DevOps Research and Assessment) metrics are the industry-standard framework for
-                    measuring software delivery performance. These four key metrics—Deployment Frequency,
-                    Lead Time for Changes, Mean Time to Recovery, and Change Failure Rate—provide
-                    quantifiable insights into your team's DevOps capabilities and identify areas for improvement.
-                </p>
+        <main class="content">
+            <div id="notice" class="notice" role="status" hidden>
+                <span id="notice-text"></span>
+                <button type="button" id="notice-dismiss" class="icon-button" aria-label="Dismiss notice">×</button>
             </div>
 
-            <div class="metrics-grid">
-                <div class="metric-section" id="metric-deploy">
-                    <h3>1. Deployment Frequency</h3>
-                    <p class="description">Measures how frequently your organization successfully releases code to production or end users.</p>
-                    <div class="input-group">
-                        <label for="deploy-freq">Deployment frequency:</label>
-                        <select id="deploy-freq" onchange="calculateScores()" aria-label="Select deployment frequency">
-                            <option value="">Select frequency...</option>
-                            <option value="4">On-demand (multiple deploys per day)</option>
-                            <option value="3">Between once per day and once per week</option>
-                            <option value="2">Between once per week and once per month</option>
-                            <option value="1">Between once per month and once every 6 months</option>
-                            <option value="0">Fewer than once per 6 months</option>
+            <form id="config" class="config-grid" novalidate>
+                <section class="card" aria-labelledby="cadence-title">
+                    <h2 id="cadence-title">Cadence</h2>
+                    <div class="field">
+                        <label for="preset">Preset</label>
+                        <select id="preset">
+                            <option value="">Load preset…</option>
                         </select>
                     </div>
-                    <div id="deploy-result"></div>
-                </div>
-
-                <div class="metric-section" id="metric-leadtime">
-                    <h3>2. Lead Time for Changes</h3>
-                    <p class="description">Measures the time from code commit to successful deployment in production.</p>
-                    <div class="input-group">
-                        <label for="lead-time">Lead time:</label>
-                        <select id="lead-time" onchange="calculateScores()" aria-label="Select lead time for changes">
-                            <option value="">Select lead time...</option>
-                            <option value="4">Less than one hour</option>
-                            <option value="3">Between one day and one week</option>
-                            <option value="2">Between one week and one month</option>
-                            <option value="1">Between one month and six months</option>
-                            <option value="0">More than six months</option>
-                        </select>
+                    <div class="field">
+                        <label for="first-ga">First GA</label>
+                        <input type="date" id="first-ga" data-path="firstGA" aria-describedby="first-ga-error">
+                        <p class="field-error" id="first-ga-error"></p>
                     </div>
-                    <div id="leadtime-result"></div>
-                </div>
-
-                <div class="metric-section" id="metric-mttr">
-                    <h3>3. Mean Time to Recovery</h3>
-                    <p class="description">Measures how quickly your team can restore service when a service incident or defect occurs in production.</p>
-                    <div class="input-group">
-                        <label for="mttr">Recovery time:</label>
-                        <select id="mttr" onchange="calculateScores()" aria-label="Select mean time to recovery">
-                            <option value="">Select recovery time...</option>
-                            <option value="4">Less than one hour</option>
-                            <option value="3">Less than one day</option>
-                            <option value="2">Between one day and one week</option>
-                            <option value="1">Between one week and one month</option>
-                            <option value="0">More than one month</option>
-                        </select>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="every">Every</label>
+                            <input type="number" id="every" data-path="cadence.every" min="1" step="1" aria-describedby="every-error">
+                            <p class="field-error" id="every-error"></p>
+                        </div>
+                        <div class="field">
+                            <label for="unit">Unit</label>
+                            <select id="unit" data-path="cadence.unit" aria-describedby="unit-error">
+                                <option value="weeks">weeks</option>
+                                <option value="months">months</option>
+                            </select>
+                            <p class="field-error" id="unit-error"></p>
+                        </div>
+                        <div class="field">
+                            <label for="count">Releases</label>
+                            <input type="number" id="count" data-path="count" min="1" max="24" step="1" aria-describedby="count-error">
+                            <p class="field-error" id="count-error"></p>
+                        </div>
                     </div>
-                    <div id="mttr-result"></div>
-                </div>
-
-                <div class="metric-section" id="metric-cfr">
-                    <h3>4. Change Failure Rate</h3>
-                    <p class="description">Measures the percentage of deployments that cause failures in production requiring immediate remediation.</p>
-                    <div class="input-group">
-                        <label for="cfr">Failure rate:</label>
-                        <select id="cfr" onchange="calculateScores()" aria-label="Select change failure rate">
-                            <option value="">Select failure rate...</option>
-                            <option value="4">0-15%</option>
-                            <option value="3">16-30%</option>
-                            <option value="2">31-45%</option>
-                            <option value="1">46-60%</option>
-                            <option value="0">More than 60%</option>
-                        </select>
+                    <div class="field-row">
+                        <div class="field field-grow">
+                            <label for="name-template">Name template</label>
+                            <input type="text" id="name-template" data-path="nameTemplate" maxlength="60" spellcheck="false" autocomplete="off" aria-describedby="name-template-hint name-template-error">
+                            <p class="hint" id="name-template-hint">Tokens: {YYYY} {YY} {MM} {N} {SEQ}</p>
+                            <p class="field-error" id="name-template-error"></p>
+                        </div>
+                        <div class="field">
+                            <label for="start-number">Start number</label>
+                            <input type="number" id="start-number" data-path="startNumber" min="0" max="9999" step="1" aria-describedby="start-number-error">
+                            <p class="field-error" id="start-number-error"></p>
+                        </div>
                     </div>
-                    <div id="cfr-result"></div>
-                </div>
-            </div>
+                </section>
 
-            <div id="overall-section" style="display: none;">
-                <div class="overall-score" role="region" aria-label="Overall performance score">
-                    <h2>Overall Performance Level</h2>
-                    <div class="score-display" id="overall-level"></div>
-                    <div class="score-label" id="overall-description"></div>
-                </div>
-            </div>
+                <section class="card" aria-labelledby="milestones-title">
+                    <h2 id="milestones-title">Milestones</h2>
+                    <p class="hint">Offsets are relative to GA: −6 weeks is six weeks before release day.</p>
+                    <div class="ga-row"><span>GA</span><span>release day</span></div>
+                    <div id="milestone-rows"></div>
+                    <button type="button" id="add-milestone" class="secondary-button">Add milestone</button>
+                </section>
 
-            <div class="legend">
-                <h3>Performance Levels</h3>
-                <div class="legend-item">
-                    <span class="result-badge elite legend-badge" role="img" aria-label="Elite performance">Elite</span>
-                    <span class="legend-text">Top-tier performance. Your team operates at the highest industry standards with exceptional DevOps practices.</span>
+                <section class="card card-wide" aria-labelledby="blackouts-title">
+                    <h2 id="blackouts-title">Blackouts</h2>
+                    <p class="hint">Dates on a weekend or inside a blackout move to the nearest earlier working day.</p>
+                    <div id="blackout-rows"></div>
+                    <p id="blackouts-empty" class="empty">No blackouts — weekends are still skipped.</p>
+                    <button type="button" id="add-blackout" class="secondary-button">Add blackout</button>
+                </section>
+            </form>
+
+            <section class="results" aria-labelledby="results-title">
+                <div class="toolbar">
+                    <h2 id="results-title">Schedule</h2>
+                    <span id="warning-count" class="warning-count" hidden></span>
+                    <div class="toolbar-actions">
+                        <button type="button" id="copy-link">Copy link</button>
+                        <button type="button" id="download-ics">Download .ics</button>
+                        <button type="button" id="copy-markdown">Copy as Markdown</button>
+                    </div>
                 </div>
-                <div class="legend-item">
-                    <span class="result-badge high legend-badge" role="img" aria-label="High performance">High</span>
-                    <span class="legend-text">Strong performance with well-established DevOps practices. Minor optimizations can elevate you to elite status.</span>
+                <p id="status" class="visually-hidden" aria-live="polite"></p>
+                <ul id="schedule-warnings" class="warnings"></ul>
+                <div class="timeline-wrap">
+                    <svg id="timeline" aria-hidden="true" focusable="false"></svg>
                 </div>
-                <div class="legend-item">
-                    <span class="result-badge medium legend-badge" role="img" aria-label="Medium performance">Medium</span>
-                    <span class="legend-text">Moderate performance with foundational DevOps practices in place. Focus on optimization and automation.</span>
+                <div class="table-wrap">
+                    <table id="schedule-table">
+                        <caption class="visually-hidden">Release dates by milestone</caption>
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
-                <div class="legend-item">
-                    <span class="result-badge low legend-badge" role="img" aria-label="Low performance">Low</span>
-                    <span class="legend-text">Significant improvement needed. Prioritize addressing the lowest-performing metrics first.</span>
-                </div>
-            </div>
-        </div>
+            </section>
+        </main>
 
         <footer>
-            <p>Based on the <a href="https://dora.dev/" target="_blank" rel="noopener noreferrer">DORA State of DevOps</a> research</p>
-            <p style="margin-top: 10px;">Built by <a href="https://github.com/rail" target="_blank" rel="noopener noreferrer">@rail</a></p>
+            <p>Everything runs in your browser. The schedule lives in the link.</p>
+            <p>Built by <a href="https://github.com/rail" target="_blank" rel="noopener noreferrer">@rail</a> · <a href="https://github.com/rail/rail" target="_blank" rel="noopener noreferrer">Source on GitHub</a></p>
         </footer>
     </div>
 
-    <script>
-        function getPerformanceLevel(score) {
-            if (score === 4) return { level: 'Elite', class: 'elite' };
-            if (score === 3) return { level: 'High', class: 'high' };
-            if (score === 2) return { level: 'Medium', class: 'medium' };
-            return { level: 'Low', class: 'low' };
-        }
-
-        function updateMetricSectionState(sectionId, hasValue) {
-            const section = document.getElementById(sectionId);
-            if (hasValue) {
-                section.classList.add('has-value');
-            } else {
-                section.classList.remove('has-value');
-            }
-        }
-
-        function calculateScores() {
-            const deployFreq = parseInt(document.getElementById('deploy-freq').value) || null;
-            const leadTime = parseInt(document.getElementById('lead-time').value) || null;
-            const mttr = parseInt(document.getElementById('mttr').value) || null;
-            const cfr = parseInt(document.getElementById('cfr').value) || null;
-
-            // Update individual results
-            if (deployFreq !== null) {
-                const perf = getPerformanceLevel(deployFreq);
-                document.getElementById('deploy-result').innerHTML =
-                    `<span class="result-badge ${perf.class}">${perf.level} Performer</span>`;
-                updateMetricSectionState('metric-deploy', true);
-            } else {
-                document.getElementById('deploy-result').innerHTML = '';
-                updateMetricSectionState('metric-deploy', false);
-            }
-
-            if (leadTime !== null) {
-                const perf = getPerformanceLevel(leadTime);
-                document.getElementById('leadtime-result').innerHTML =
-                    `<span class="result-badge ${perf.class}">${perf.level} Performer</span>`;
-                updateMetricSectionState('metric-leadtime', true);
-            } else {
-                document.getElementById('leadtime-result').innerHTML = '';
-                updateMetricSectionState('metric-leadtime', false);
-            }
-
-            if (mttr !== null) {
-                const perf = getPerformanceLevel(mttr);
-                document.getElementById('mttr-result').innerHTML =
-                    `<span class="result-badge ${perf.class}">${perf.level} Performer</span>`;
-                updateMetricSectionState('metric-mttr', true);
-            } else {
-                document.getElementById('mttr-result').innerHTML = '';
-                updateMetricSectionState('metric-mttr', false);
-            }
-
-            if (cfr !== null) {
-                const perf = getPerformanceLevel(cfr);
-                document.getElementById('cfr-result').innerHTML =
-                    `<span class="result-badge ${perf.class}">${perf.level} Performer</span>`;
-                updateMetricSectionState('metric-cfr', true);
-            } else {
-                document.getElementById('cfr-result').innerHTML = '';
-                updateMetricSectionState('metric-cfr', false);
-            }
-
-            // Calculate overall score
-            if (deployFreq !== null && leadTime !== null && mttr !== null && cfr !== null) {
-                const avgScore = (deployFreq + leadTime + mttr + cfr) / 4;
-                const overallPerf = getPerformanceLevel(Math.round(avgScore));
-
-                document.getElementById('overall-section').style.display = 'block';
-                document.getElementById('overall-level').textContent = overallPerf.level;
-
-                const descriptions = {
-                    'Elite': 'Outstanding performance! Your team demonstrates world-class DevOps practices and maintains the highest industry standards.',
-                    'High': 'Strong performance! Your team has established solid DevOps practices with room for incremental improvements.',
-                    'Medium': 'Moderate performance. Focus on strengthening your weakest metrics through targeted process improvements.',
-                    'Low': 'Significant improvement opportunities exist. Prioritize addressing your lowest-performing metrics first.'
-                };
-
-                document.getElementById('overall-description').textContent = descriptions[overallPerf.level];
-
-                // Scroll to results
-                setTimeout(() => {
-                    document.getElementById('overall-section').scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'nearest'
-                    });
-                }, 100);
-            } else {
-                document.getElementById('overall-section').style.display = 'none';
-            }
-        }
-    </script>
+    <dialog id="copy-dialog" aria-labelledby="copy-dialog-title">
+        <form method="dialog">
+            <h2 id="copy-dialog-title">Copy manually</h2>
+            <p class="hint">Your browser blocked clipboard access. The text is selected; press Ctrl+C or ⌘C.</p>
+            <textarea id="copy-text" rows="10" readonly></textarea>
+            <button type="submit">Close</button>
+        </form>
+    </dialog>
 </body>
 </html>
